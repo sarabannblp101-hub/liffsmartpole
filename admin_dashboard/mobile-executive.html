@@ -1,0 +1,2899 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ ระบบผู้บริหาร - อบต.ข่าใหญ่</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SP Executive">
+    <meta name="msapplication-TileColor" content="#1e3a8a">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/executive-manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/icons/executive-icon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/executive-icon-192.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iI2ZiYmYyNCIvPgo8dGV4dCB4PSIxNiIgeT0iMTkiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzBmMTcyYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiPuKaoTwvdGV4dD4KPC9zdmc+Cg==">
+    
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.10.1/sweetalert2.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 8px 32px rgba(251, 191, 36, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-icon {
+            font-size: 2.5rem;
+            color: #0f172a;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.1); filter: brightness(1.2); }
+        }
+
+        .header-title {
+            color: #0f172a;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header-subtitle {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            background: rgba(15, 23, 42, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .header-user:hover {
+            background: rgba(15, 23, 42, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .user-avatar {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            color: #0f172a;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .user-role {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            padding-bottom: 6rem;
+        }
+
+        /* Cards */
+        .card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(51, 65, 85, 0.7));
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(251, 191, 36, 0.2);
+            border-color: rgba(251, 191, 36, 0.4);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(251, 191, 36, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+        }
+
+        .card:hover::before {
+            animation: shine 0.6s ease-in-out;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(51, 65, 85, 0.7));
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(251, 191, 36, 0.2);
+            border-color: rgba(251, 191, 36, 0.4);
+        }
+
+        .stat-content h3 {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .stat-content p {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fbbf24;
+            line-height: 1;
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
+        }
+
+        /* Performance Card */
+        .performance-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .performance-item {
+            background: rgba(15, 23, 42, 0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        .performance-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        .performance-label {
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            margin-top: 0.25rem;
+        }
+
+        /* Alert Cards */
+        .alert-card {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .alert-card:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.15));
+            transform: translateY(-2px);
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+            color: #ef4444;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            color: #f8fafc;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-description {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-placeholder {
+            color: #94a3b8;
+            font-style: italic;
+            font-size: 1rem;
+        }
+
+        .real-chart {
+            width: 100%;
+            height: 200px;
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fbbf24;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            font-size: 1.8rem;
+            color: #f59e0b;
+        }
+
+        /* Quick Action Cards */
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-action-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #f8fafc;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+            border-color: rgba(16, 185, 129, 0.6);
+        }
+
+        .quick-action-icon {
+            font-size: 2rem;
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-action-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #f8fafc;
+            font-size: 0.9rem;
+        }
+
+        .quick-action-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        /* Village Analysis */
+        .village-item {
+            background: rgba(15, 23, 42, 0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .village-item:hover {
+            background: rgba(15, 23, 42, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .village-name {
+            font-weight: 500;
+            color: #f8fafc;
+        }
+
+        .village-stats {
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            margin-top: 0.25rem;
+        }
+
+        .village-count {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Progress Bars */
+        .progress-container {
+            margin-top: 1rem;
+        }
+
+        .progress-item {
+            margin-bottom: 1rem;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Status badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge.status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .status-badge.status-approved {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge.status-rejected {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-badge.status-overdue {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.7; }
+        }
+
+        /* Request Cards */
+        .request-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(51, 65, 85, 0.7));
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .request-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(251, 191, 36, 0.2);
+            border-color: rgba(251, 191, 36, 0.4);
+        }
+
+        .request-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .request-id {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #fbbf24;
+        }
+
+        .request-time {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .request-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+        }
+
+        .request-info-icon {
+            width: 1.2rem;
+            height: 1.2rem;
+            margin-right: 0.75rem;
+            color: #fbbf24;
+        }
+
+        .request-reason {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 0.5rem;
+            border-left: 4px solid #fbbf24;
+        }
+
+        /* Signature Pad Styles */
+        .signature-modal {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(51, 65, 85, 0.98)) !important;
+            border: 1px solid rgba(251, 191, 36, 0.3) !important;
+            border-radius: 1rem !important;
+            color: #f8fafc !important;
+            padding: 0 !important;
+        }
+
+        .signature-container {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .signature-header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .signature-title {
+            color: #fbbf24;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .signature-subtitle {
+            color: #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        .signature-canvas-container {
+            background: #f8fafc;
+            border: 2px solid rgba(251, 191, 36, 0.5);
+            border-radius: 0.5rem;
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        .signature-canvas {
+            width: 100%;
+            height: 200px;
+            border-radius: 0.5rem;
+            cursor: crosshair;
+        }
+
+        .signature-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #94a3b8;
+            font-size: 0.9rem;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        .signature-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            gap: 0.5rem;
+        }
+
+        .signature-clear-btn {
+            background: rgba(148, 163, 184, 0.3) !important;
+            border: 1px solid rgba(148, 163, 184, 0.3) !important;
+            border-radius: 0.5rem !important;
+            color: #f8fafc !important;
+            padding: 0.5rem 1rem !important;
+            font-size: 0.85rem !important;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .signature-clear-btn:hover {
+            background: rgba(148, 163, 184, 0.5) !important;
+        }
+
+        .signature-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .signature-cancel-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+            color: white !important;
+            padding: 0.75rem 1rem !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            font-size: 0.85rem !important;
+        }
+
+        .signature-submit-btn {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+            color: white !important;
+            padding: 0.75rem 1rem !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            font-size: 0.85rem !important;
+        }
+
+        .signature-submit-btn:disabled {
+            background: rgba(148, 163, 184, 0.3) !important;
+            cursor: not-allowed;
+        }
+
+        /* Animation for signature drawing */
+        @keyframes signature-draw {
+            from { opacity: 0.7; }
+            to { opacity: 1; }
+        }
+
+        .signature-canvas.drawing {
+            animation: signature-draw 0.1s ease-in-out;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95));
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(251, 191, 36, 0.3);
+            padding: 1rem 0.5rem;
+            display: flex;
+            justify-content: space-around;
+            z-index: 90;
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            text-align: center;
+            min-width: 70px;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: #fbbf24;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-item:hover:not(.active) {
+            color: #f8fafc;
+            background: rgba(248, 250, 252, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: #e2e8f0;
+            animation: pulse-loading 1.5s infinite;
+        }
+
+        @keyframes pulse-loading {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #e2e8f0;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #94a3b8;
+        }
+
+        /* SweetAlert2 Custom Styling */
+        .swal2-popup {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95)) !important;
+            border: 1px solid rgba(251, 191, 36, 0.3) !important;
+            border-radius: 1rem !important;
+            color: #f8fafc !important;
+        }
+
+        .swal2-title {
+            color: #fbbf24 !important;
+            font-weight: 700 !important;
+        }
+
+        .swal2-content {
+            color: #f8fafc !important;
+        }
+
+        .swal2-html-container {
+            color: #e2e8f0 !important;
+        }
+
+        .swal2-confirm {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+            font-weight: 600 !important;
+            padding: 0.75rem 1.5rem !important;
+        }
+
+        .swal2-cancel {
+            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+            font-weight: 600 !important;
+            padding: 0.75rem 1.5rem !important;
+        }
+
+        .swal2-deny {
+            background: rgba(148, 163, 184, 0.3) !important;
+            border: 1px solid rgba(148, 163, 184, 0.3) !important;
+            border-radius: 0.5rem !important;
+            font-weight: 600 !important;
+            padding: 0.75rem 1.5rem !important;
+            color: #f8fafc !important;
+        }
+
+        .swal2-input {
+            background: rgba(15, 23, 42, 0.5) !important;
+            color: #f8fafc !important;
+            border: 1px solid rgba(251, 191, 36, 0.3) !important;
+        }
+
+        .swal2-input:focus {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2) !important;
+        }
+
+        .request-detail-popup {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(51, 65, 85, 0.98)) !important;
+        }
+
+        #statusFilter {
+            background: rgba(15, 23, 42, 0.7) !important;
+            color: #f8fafc !important;
+            border: 1px solid rgba(251, 191, 36, 0.3) !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+
+        #statusFilter:focus {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2) !important;
+        }
+
+        #statusFilter option {
+            background: rgba(30, 41, 59, 0.95) !important;
+            color: #f8fafc !important;
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .mt-4 {
+            margin-top: 1rem;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+                padding-bottom: 6rem;
+            }
+            
+            .stats-grid {
+                gap: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .header {
+                padding: 1rem;
+            }
+            
+            .header-title {
+                font-size: 1.2rem;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bottom-nav {
+                padding: 0.75rem 0.25rem;
+            }
+            
+            .nav-item {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.7rem;
+                min-width: 60px;
+            }
+            
+            .nav-icon {
+                font-size: 1.2rem;
+            }
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #94a3b8, #64748b);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #64748b, #475569);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-brand">
+                <div class="header-icon">⚡</div>
+                <div>
+                    <h1 class="header-title" id="pageTitle">ระบบผู้บริหาร</h1>
+                    <p class="header-subtitle">สวัสดี คุณ<span id="userDisplay">Loading...</span> - ส่องสว่างทุกมุมเมือง</p>
+                </div>
+            </div>
+            <div class="header-user" onclick="showProfilePage()">
+                <div class="notification-badge" id="notificationBadge">!</div>
+                <div class="user-avatar" id="userAvatar">E</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-role" id="userRole">ผู้บริหาร</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <div id="dashboardPage">
+                <!-- Alert Section -->
+                <section class="alerts-section" id="alertsSection" style="display: none;">
+                    <h2 class="section-title">
+                        <span class="section-icon">🚨</span>
+                        แจ้งเตือนสำคัญ
+                    </h2>
+                    <div id="alertsList"></div>
+                </section>
+
+                <!-- Stats Section -->
+                <section class="stats-section">
+                    <h2 class="section-title">
+                        <span class="section-icon">📊</span>
+                        สถิติคำขอแจ้งซ่อม
+                    </h2>
+                    <div class="stats-grid">
+                        <div class="stat-card" onclick="showAllRequests()">
+                            <div class="stat-content">
+                                <h3>รวมทั้งหมด</h3>
+                                <p id="totalCount">-</p>
+                            </div>
+                            <div class="stat-icon">📋</div>
+                        </div>
+                        
+                        <div class="stat-card" onclick="showPendingRequests()">
+                            <div class="stat-content">
+                                <h3>รอการอนุมัติ</h3>
+                                <p id="pendingCount" style="color: #fbbf24;">-</p>
+                            </div>
+                            <div class="stat-icon">⏰</div>
+                        </div>
+                        
+                        <div class="stat-card" onclick="showApprovedRequests()">
+                            <div class="stat-content">
+                                <h3>อนุมัติแล้ว</h3>
+                                <p id="approvedCount" style="color: #10b981;">-</p>
+                            </div>
+                            <div class="stat-icon">✅</div>
+                        </div>
+                        
+                        <div class="stat-card" onclick="showRejectedRequests()">
+                            <div class="stat-content">
+                                <h3>ปฏิเสธ</h3>
+                                <p id="rejectedCount" style="color: #ef4444;">-</p>
+                            </div>
+                            <div class="stat-icon">❌</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Performance Section -->
+                <section class="performance-section">
+                    <h2 class="section-title">
+                        <span class="section-icon">📈</span>
+                        ผลการดำเนินงาน
+                    </h2>
+                    <div class="card performance-card">
+                        <h3 style="color: #10b981; margin-bottom: 1rem;">KPI ประจำเดือน</h3>
+                        <div class="performance-grid">
+                            <div class="performance-item">
+                                <div class="performance-value" id="avgApprovalTime">-</div>
+                                <div class="performance-label">เวลาอนุมัติเฉลี่ย (ชั่วโมง)</div>
+                            </div>
+                            <div class="performance-item">
+                                <div class="performance-value" id="approvalRate">-</div>
+                                <div class="performance-label">อัตราการอนุมัติ (%)</div>
+                            </div>
+                            <div class="performance-item">
+                                <div class="performance-value" id="responseTime">-</div>
+                                <div class="performance-label">ตอบสนองภายใน 24 ชม. (%)</div>
+                            </div>
+                            <div class="performance-item">
+                                <div class="performance-value" id="monthlyTarget">85%</div>
+                                <div class="performance-label">เป้าหมายเดือน</div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-container">
+                            <div class="progress-item">
+                                <div class="progress-label">
+                                    <span>ความคืบหน้าเป้าหมายเดือน</span>
+                                    <span id="targetProgress">0%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="targetProgressBar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quick Actions -->
+                <section class="quick-actions-section">
+                    <h2 class="section-title">
+                        <span class="section-icon">⚡</span>
+                        การดำเนินการด่วน
+                    </h2>
+                    
+                    <div class="quick-actions-grid">
+                        <div class="quick-action-card" onclick="showPendingRequests()">
+                            <div class="quick-action-icon">🔔</div>
+                            <div class="quick-action-title">รอการอนุมัติ</div>
+                            <div class="quick-action-value" id="quickPendingCount">-</div>
+                        </div>
+                        
+                        <div class="quick-action-card" onclick="showOverdueRequests()">
+                            <div class="quick-action-icon">⚠️</div>
+                            <div class="quick-action-title">คำขอค้างนาน</div>
+                            <div class="quick-action-value" id="overdueCount">-</div>
+                        </div>
+                        
+                        <div class="quick-action-card" onclick="showVillageAnalysis()">
+                            <div class="quick-action-icon">🏘️</div>
+                            <div class="quick-action-title">พื้นที่ปัญหา</div>
+                            <div class="quick-action-value" id="villageCount">-</div>
+                        </div>
+                        
+                        <div class="quick-action-card" onclick="generateReport()">
+                            <div class="quick-action-icon">📄</div>
+                            <div class="quick-action-title">รายงานเดือนนี้</div>
+                            <div class="quick-action-value">PDF</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chart Section -->
+                <section class="chart-section">
+                    <h2 class="section-title">
+                        <span class="section-icon">📊</span>
+                        แนวโน้มการแจ้งซ่อม
+                    </h2>
+                    <div class="card">
+                        <h3 style="color: #fbbf24; margin-bottom: 1rem;">สถิติรายสัปดาห์</h3>
+                        <div class="chart-container" id="monthlyChart">
+                            <canvas class="real-chart" id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recent Requests -->
+                <section class="recent-requests-section">
+                    <h2 class="section-title">
+                        <span class="section-icon">⏰</span>
+                        คำขอล่าสุด
+                    </h2>
+                    <div id="recentRequests">
+                        <div class="loading">
+                            <span style="font-size: 2rem; margin-right: 1rem;">⚡</span>
+                            กำลังโหลดข้อมูล...
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Village Analysis Page -->
+            <div id="villageAnalysisPage" class="hidden">
+                <button class="back-btn" onclick="showDashboard()">← กลับสู่แดชบอร์ด</button>
+                
+                <section class="village-analysis-section">
+                    <h2 class="section-title">
+                        <span class="section-icon">🏘️</span>
+                        วิเคราะห์การแจ้งซ่อมตามพื้นที่
+                    </h2>
+                    <div class="card">
+                        <h3 style="color: #fbbf24; margin-bottom: 1rem;">สถิติตามหมู่บ้าน</h3>
+                        <div id="villageStatsList">
+                            <div class="loading">
+                                <span style="font-size: 2rem; margin-right: 1rem;">🏘️</span>
+                                กำลังวิเคราะห์ข้อมูล...
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 style="color: #fbbf24; margin-bottom: 1rem;">การกระจายตัวของปัญหา</h3>
+                        <div class="chart-container" id="villageChart">
+                            <canvas class="real-chart" id="villageDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Requests Page -->
+            <div id="requestsPage" class="hidden">
+                <button class="back-btn" onclick="showDashboard()">← กลับสู่แดชบอร์ด</button>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="color: #fbbf24;">รายการคำขอ</h3>
+                        <select id="statusFilter" onchange="filterRequests()">
+                            <option value="all">ทั้งหมด</option>
+                            <option value="รอดำเนินการ">รอการอนุมัติ</option>
+                            <option value="อนุมัติแล้วรอช่าง">อนุมัติแล้ว</option>
+                            <option value="ไม่อนุมัติโดยผู้บริหาร">ปฏิเสธ</option>
+                        </select>
+                    </div>
+                    <div id="requestsList">
+                        <div class="loading">
+                            <span style="font-size: 2rem; margin-right: 1rem;">📋</span>
+                            กำลังโหลดข้อมูล...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profilePage" class="hidden">
+                <button class="back-btn" onclick="showDashboard()">← กลับสู่แดชบอร์ด</button>
+                
+                <div class="card">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+                        <div class="user-avatar" id="profilePageAvatar" style="width: 4rem; height: 4rem; font-size: 2rem;">E</div>
+                        <div>
+                            <h2 id="profilePageUsername" style="font-size: 1.25rem; font-weight: 600; color: #fbbf24;">Username</h2>
+                            <p id="profilePageRole" style="color: #94a3b8;">Role</p>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                        <div style="background: rgba(15, 23, 42, 0.3); padding: 1rem 1.25rem; border-radius: 0.5rem; border: 1px solid rgba(251, 191, 36, 0.2);">
+                            <strong style="color: #fbbf24;">ชื่อเต็ม:</strong> <span id="profilePageFullName">-</span>
+                        </div>
+                        <div style="background: rgba(15, 23, 42, 0.3); padding: 1rem 1.25rem; border-radius: 0.5rem; border: 1px solid rgba(251, 191, 36, 0.2);">
+                            <strong style="color: #fbbf24;">อีเมล:</strong> <span id="profilePageEmail">-</span>
+                        </div>
+                        <div style="background: rgba(15, 23, 42, 0.3); padding: 1rem 1.25rem; border-radius: 0.5rem; border: 1px solid rgba(251, 191, 36, 0.2);">
+                            <strong style="color: #fbbf24;">เข้าใช้ล่าสุด:</strong> <span id="profilePageLastLogin">-</span>
+                        </div>
+                        <div style="background: rgba(15, 23, 42, 0.3); padding: 1rem 1.25rem; border-radius: 0.5rem; border: 1px solid rgba(251, 191, 36, 0.2);">
+                            <strong style="color: #fbbf24;">สถานะ:</strong> <span id="profilePageStatus">-</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+                        <button style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; border-radius: 0.5rem; padding: 0.75rem 1.5rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;" onclick="handleLogout()">🚪 ออกจากระบบ</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="showDashboard()">
+                <div class="nav-icon">🏠</div>
+                <div>หน้าหลัก</div>
+            </div>
+            <div class="nav-item" onclick="showRequestsPage()">
+                <div class="nav-icon">📋</div>
+                <div>คำขอ</div>
+            </div>
+            <div class="nav-item" onclick="showVillageAnalysis()">
+                <div class="nav-icon">🏘️</div>
+                <div>พื้นที่</div>
+            </div>
+            <div class="nav-item" onclick="generateReport()">
+                <div class="nav-icon">📄</div>
+                <div>รายงาน</div>
+            </div>
+            <div class="nav-item" onclick="showProfilePage()">
+                <div class="nav-icon">👤</div>
+                <div>โปรไฟล์</div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.10.1/sweetalert2.min.js"></script>
+    <script src="/auth-utils.js"></script>
+    
+    <script>
+        // Global variables
+        let currentUser = null;
+        let allRequests = [];
+        let allPoles = [];
+        let allUsers = [];
+        let currentFilters = { status: 'all', search: '' };
+        let dashboardStats = {
+            total: 0,
+            pending: 0,
+            approved: 0,
+            rejected: 0,
+            overdue: 0,
+            thisMonth: 0,
+            avgResponseTime: 0,
+            approvalRate: 0
+        };
+
+        // Chart instances
+        let trendChart = null;
+        let villageChart = null;
+
+        // Signature pad variables
+        let signaturePad = null;
+        let isDrawing = false;
+
+        // Page identifiers
+        const PAGES = ['dashboard', 'requests', 'villageAnalysis', 'profile'];
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            // Protect this page (require executive or admin role)
+            if (!window.AuthUtils.protectPage(['executive', 'admin'])) {
+                return;
+            }
+
+            const authUser = window.AuthUtils.getCurrentUser();
+            if (authUser && authUser.user) {
+                try {
+                    const userDetailsResponse = await window.AuthUtils.apiCall(`/api/admin/users/${encodeURIComponent(authUser.user.username)}`);
+                    const userDetailsData = await userDetailsResponse.json();
+
+                    if (userDetailsData.status === 'success' && userDetailsData.data) {
+                        currentUser = {
+                            username: userDetailsData.data.USERNAME,
+                            role: userDetailsData.data.ROLE,
+                            fullName: userDetailsData.data.FULL_NAME,
+                            email: userDetailsData.data.EMAIL,
+                            lastLogin: userDetailsData.data.LAST_LOGIN,
+                            isActive: userDetailsData.data.IS_ACTIVE === 'TRUE',
+                            token: authUser.token
+                        };
+                    } else {
+                        currentUser = {
+                            username: authUser.user.username,
+                            role: authUser.user.role,
+                            token: authUser.token,
+                            fullName: authUser.user.username,
+                            email: '-',
+                            lastLogin: '-',
+                            isActive: true
+                        };
+                    }
+                } catch (error) {
+                    console.error("Error fetching user details:", error);
+                    currentUser = {
+                        username: authUser.user.username,
+                        role: authUser.user.role,
+                        token: authUser.token,
+                        fullName: authUser.user.username,
+                        email: '-',
+                        lastLogin: '-',
+                        isActive: true
+                    };
+                }
+                
+                updateUserDisplay();
+                await loadAllData();
+                showDashboard();
+                showToast('ยินดีต้อนรับสู่ระบบผู้บริหารแจ้งซ่อมไฟฟ้า! ⚡', 'success');
+            } else {
+                window.AuthUtils.forceLogout('ไม่พบข้อมูลผู้ใช้');
+            }
+        }
+
+        function updateUserDisplay() {
+            if (currentUser) {
+                document.getElementById('userDisplay').textContent = currentUser.username;
+                document.getElementById('userName').textContent = currentUser.username;
+                document.getElementById('userRole').textContent = getRoleDisplayName(currentUser.role);
+                const avatar = document.getElementById('userAvatar');
+                avatar.textContent = currentUser.username.charAt(0).toUpperCase();
+            }
+        }
+
+        // ฟังก์ชันโหลดข้อมูลทั้งหมดจาก API จริง
+        async function loadAllData() {
+            try {
+                showToast('กำลังโหลดข้อมูล...', 'info');
+                
+                // โหลดข้อมูลคู่ขนาน
+                await Promise.all([
+                    loadRequests(),
+                    loadPoles(),
+                    loadUsers(),
+                    loadSummary()
+                ]);
+
+                // คำนวณสถิติจากข้อมูลจริง
+                calculateRealStatistics();
+                
+                // อัปเดตการแสดงผล
+                updateAllDisplays();
+                
+                // สร้างกราฟ
+                createCharts();
+                
+                console.log('✅ ข้อมูลทั้งหมดโหลดเสร็จแล้ว');
+            } catch (error) {
+                console.error('❌ Error loading data:', error);
+                showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+            }
+        }
+
+        // โหลดข้อมูลคำขอแจ้งซ่อมจาก API
+        async function loadRequests() {
+            try {
+                const response = await window.AuthUtils.apiCall('/api/admin/repair-requests?limit=200');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    allRequests = data.data || [];
+                    console.log(`✅ โหลดคำขอแจ้งซ่อม: ${allRequests.length} รายการ`);
+                } else {
+                    throw new Error(data.message || 'ไม่สามารถโหลดข้อมูลคำขอได้');
+                }
+            } catch (error) {
+                console.error('Error loading requests:', error);
+                allRequests = [];
+            }
+        }
+
+        // โหลดข้อมูลเสาไฟฟ้าจาก API
+        async function loadPoles() {
+            try {
+                const response = await window.AuthUtils.apiCall('/api/admin/poles');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    allPoles = data.data || [];
+                    console.log(`✅ โหลดข้อมูลเสาไฟฟ้า: ${allPoles.length} เสา`);
+                } else {
+                    throw new Error(data.message || 'ไม่สามารถโหลดข้อมูลเสาไฟฟ้าได้');
+                }
+            } catch (error) {
+                console.error('Error loading poles:', error);
+                allPoles = [];
+            }
+        }
+
+        // โหลดข้อมูลผู้ใช้จาก API
+        async function loadUsers() {
+            try {
+                const response = await window.AuthUtils.apiCall('/api/admin/users');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    allUsers = data.data || [];
+                    console.log(`✅ โหลดข้อมูลผู้ใช้: ${allUsers.length} คน`);
+                } else {
+                    throw new Error(data.message || 'ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                allUsers = [];
+            }
+        }
+
+        // โหลดข้อมูลสรุปจาก API
+        async function loadSummary() {
+            try {
+                const response = await window.AuthUtils.apiCall('/api/admin/dashboard-summary');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    console.log('✅ โหลดข้อมูลสรุปสำเร็จ');
+                } else {
+                    console.warn('⚠️ ไม่สามารถโหลดข้อมูลสรุปได้');
+                }
+            } catch (error) {
+                console.error('Error loading summary:', error);
+            }
+        }
+
+        // คำนวณสถิติจากข้อมูลจริง
+        function calculateRealStatistics() {
+            if (!allRequests || allRequests.length === 0) {
+                console.warn('⚠️ ไม่มีข้อมูลคำขอสำหรับการคำนวณสถิติ');
+                return;
+            }
+
+            const now = new Date();
+            const thisMonth = now.getMonth();
+            const thisYear = now.getFullYear();
+
+            // คำนวณสถิติพื้นฐาน
+            dashboardStats.total = allRequests.length;
+            dashboardStats.pending = allRequests.filter(r => r.STATUS === 'รอดำเนินการ').length;
+            dashboardStats.approved = allRequests.filter(r => r.STATUS === 'อนุมัติแล้วรอช่าง').length;
+            dashboardStats.rejected = allRequests.filter(r => r.STATUS === 'ไม่อนุมัติโดยผู้บริหาร').length;
+
+            // คำนวณคำขอในเดือนนี้
+            const thisMonthRequests = allRequests.filter(request => {
+                if (!request.DATE_REPORTED) return false;
+                try {
+                    const requestDate = parseDateFromThai(request.DATE_REPORTED);
+                    return requestDate.getMonth() === thisMonth && requestDate.getFullYear() === thisYear;
+                } catch (error) {
+                    return false;
+                }
+            });
+            dashboardStats.thisMonth = thisMonthRequests.length;
+
+            // คำนวณคำขอค้างนาน (เกิน 24 ชั่วโมง)
+            dashboardStats.overdue = allRequests.filter(request => {
+                if (request.STATUS !== 'รอดำเนินการ') return false;
+                try {
+                    const requestDate = parseDateFromThai(request.DATE_REPORTED);
+                    const hoursDiff = (now - requestDate) / (1000 * 60 * 60);
+                    return hoursDiff > 24;
+                } catch (error) {
+                    return false;
+                }
+            }).length;
+
+            // คำนวณอัตราการอนุมัติ
+            const processedRequests = allRequests.filter(r => 
+                r.STATUS === 'อนุมัติแล้วรอช่าง' || r.STATUS === 'ไม่อนุมัติโดยผู้บริหาร'
+            );
+            dashboardStats.approvalRate = processedRequests.length > 0 ? 
+                Math.round((dashboardStats.approved / processedRequests.length) * 100) : 0;
+
+            // คำนวณอัตราการตอบสนองภายใน 24 ชั่วโมง
+            const respondedWithin24h = allRequests.filter(request => {
+                if (!request.APPROVAL_TIMESTAMP || !request.DATE_REPORTED) return false;
+                try {
+                    const requestDate = parseDateFromThai(request.DATE_REPORTED);
+                    const approvalDate = parseDateFromThai(request.APPROVAL_TIMESTAMP);
+                    const hoursDiff = (approvalDate - requestDate) / (1000 * 60 * 60);
+                    return hoursDiff <= 24;
+                } catch (error) {
+                    return false;
+                }
+            }).length;
+
+            dashboardStats.avgResponseTime = processedRequests.length > 0 ?
+                Math.round((respondedWithin24h / processedRequests.length) * 100) : 0;
+
+            console.log('📊 สถิติที่คำนวณได้:', dashboardStats);
+        }
+
+        // ฟังก์ชันแปลงวันที่จากรูปแบบไทย
+        function parseDateFromThai(dateString) {
+            if (!dateString) return new Date();
+            
+            try {
+                // รูปแบบ: "8/6/2567, 14:30:25" หรือ "8/6/2567"
+                const parts = dateString.split(/,\s*/);
+                const datePart = parts[0].trim();
+                const timePart = parts.length > 1 ? parts[1].trim() : '00:00:00';
+                
+                const dateSegments = datePart.split('/');
+                if (dateSegments.length !== 3) return new Date();
+                
+                const day = parseInt(dateSegments[0]);
+                const month = parseInt(dateSegments[1]) - 1; // JavaScript months are 0-indexed
+                let year = parseInt(dateSegments[2]);
+                
+                // แปลง พ.ศ. เป็น ค.ศ.
+                if (year > 2500) year -= 543;
+                
+                const timeSegments = timePart.split(':');
+                const hour = timeSegments.length > 0 ? parseInt(timeSegments[0]) : 0;
+                const minute = timeSegments.length > 1 ? parseInt(timeSegments[1]) : 0;
+                const second = timeSegments.length > 2 ? parseInt(timeSegments[2]) : 0;
+                
+                return new Date(year, month, day, hour, minute, second);
+            } catch (error) {
+                console.error('Error parsing date:', dateString, error);
+                return new Date();
+            }
+        }
+
+        // อัปเดตการแสดงผลทั้งหมด
+        function updateAllDisplays() {
+            updateStatistics();
+            updatePerformanceMetrics();
+            updateNotificationBadge();
+            updateAlerts();
+            renderRecentRequests();
+        }
+
+        // อัปเดตสถิติ
+        function updateStatistics() {
+            document.getElementById('totalCount').textContent = dashboardStats.total;
+            document.getElementById('pendingCount').textContent = dashboardStats.pending;
+            document.getElementById('approvedCount').textContent = dashboardStats.approved;
+            document.getElementById('rejectedCount').textContent = dashboardStats.rejected;
+            document.getElementById('quickPendingCount').textContent = dashboardStats.pending;
+            document.getElementById('overdueCount').textContent = dashboardStats.overdue;
+        }
+
+        // อัปเดต performance metrics
+        function updatePerformanceMetrics() {
+            // คำนวณเวลาอนุมัติเฉลี่ย (ตัวอย่าง)
+            const avgHours = Math.max(1, Math.min(48, 24 - (dashboardStats.approvalRate / 10)));
+            document.getElementById('avgApprovalTime').textContent = Math.round(avgHours);
+            
+            document.getElementById('approvalRate').textContent = dashboardStats.approvalRate + '%';
+            document.getElementById('responseTime').textContent = dashboardStats.avgResponseTime + '%';
+            
+            // อัปเดต progress bar
+            const targetProgress = Math.min(dashboardStats.approvalRate, 100);
+            document.getElementById('targetProgress').textContent = targetProgress + '%';
+            document.getElementById('targetProgressBar').style.width = targetProgress + '%';
+        }
+
+        // อัปเดต notification badge
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            const urgentCount = dashboardStats.pending + dashboardStats.overdue;
+            
+            if (urgentCount > 0) {
+                badge.style.display = 'flex';
+                badge.textContent = urgentCount > 9 ? '9+' : urgentCount;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // อัปเดตการแจ้งเตือน
+        function updateAlerts() {
+            const alertsSection = document.getElementById('alertsSection');
+            const alertsList = document.getElementById('alertsList');
+            
+            const alerts = [];
+            
+            // แจ้งเตือนคำขอค้างนาน
+            if (dashboardStats.overdue > 0) {
+                alerts.push({
+                    icon: '⚠️',
+                    title: 'คำขอค้างนาน',
+                    description: `มีคำขอ ${dashboardStats.overdue} รายการที่ค้างการอนุมัติเกิน 24 ชั่วโมง`,
+                    action: () => showOverdueRequests()
+                });
+            }
+            
+            // แจ้งเตือนถ้ามีคำขอรอการอนุมัติมาก
+            if (dashboardStats.pending > 10) {
+                alerts.push({
+                    icon: '📋',
+                    title: 'คำขอรอการอนุมัติมาก',
+                    description: `มีคำขอรอการอนุมัติ ${dashboardStats.pending} รายการ`,
+                    action: () => showPendingRequests()
+                });
+            }
+            
+            // แจ้งเตือนถ้าอัตราการอนุมัติต่ำ
+            if (dashboardStats.approvalRate < 70 && dashboardStats.total > 5) {
+                alerts.push({
+                    icon: '📉',
+                    title: 'อัตราการอนุมัติต่ำ',
+                    description: `อัตราการอนุมัติเพียง ${dashboardStats.approvalRate}% ควรตรวจสอบ`,
+                    action: () => showRequestsPage()
+                });
+            }
+            
+            if (alerts.length > 0) {
+                alertsList.innerHTML = alerts.map(alert => `
+                    <div class="alert-card" onclick="(${alert.action.toString()})()">
+                        <div class="alert-icon">${alert.icon}</div>
+                        <div class="alert-content">
+                            <div class="alert-title">${alert.title}</div>
+                            <div class="alert-description">${alert.description}</div>
+                        </div>
+                    </div>
+                `).join('');
+                alertsSection.style.display = 'block';
+            } else {
+                alertsSection.style.display = 'none';
+            }
+        }
+
+        // สร้างกราฟจากข้อมูลจริง
+        function createCharts() {
+            createTrendChart();
+            calculateVillageStatistics();
+        }
+
+        // สร้างกราฟแนวโน้ม
+        function createTrendChart() {
+            const ctx = document.getElementById('trendChart');
+            if (!ctx) return;
+
+            // จัดกลุ่มข้อมูลตามสัปดาห์
+            const weeklyData = getWeeklyData();
+            
+            if (trendChart) {
+                trendChart.destroy();
+            }
+
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: weeklyData.labels,
+                    datasets: [{
+                        label: 'จำนวนคำขอ',
+                        data: weeklyData.data,
+                        borderColor: '#fbbf24',
+                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#fbbf24',
+                        pointBorderColor: '#f59e0b',
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#f8fafc'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94a3b8'
+                            },
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94a3b8'
+                            },
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // คำนวณข้อมูลรายสัปดาห์
+        function getWeeklyData() {
+            const weeks = [];
+            const data = [];
+            const now = new Date();
+            
+            // สร้างข้อมูล 8 สัปดาห์ย้อนหลัง
+            for (let i = 7; i >= 0; i--) {
+                const weekStart = new Date(now);
+                weekStart.setDate(now.getDate() - (i * 7));
+                weekStart.setHours(0, 0, 0, 0);
+                
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                weekEnd.setHours(23, 59, 59, 999);
+                
+                const requestsInWeek = allRequests.filter(request => {
+                    if (!request.DATE_REPORTED) return false;
+                    try {
+                        const requestDate = parseDateFromThai(request.DATE_REPORTED);
+                        return requestDate >= weekStart && requestDate <= weekEnd;
+                    } catch (error) {
+                        return false;
+                    }
+                }).length;
+                
+                weeks.push(`${weekStart.getDate()}/${weekStart.getMonth() + 1}`);
+                data.push(requestsInWeek);
+            }
+            
+            return { labels: weeks, data: data };
+        }
+
+        // คำนวณสถิติหมู่บ้าน
+        function calculateVillageStatistics() {
+            const villageStats = {};
+            
+            allRequests.forEach(request => {
+                const village = request.MOO || 'ไม่ระบุ';
+                if (!villageStats[village]) {
+                    villageStats[village] = {
+                        total: 0,
+                        pending: 0,
+                        approved: 0,
+                        rejected: 0
+                    };
+                }
+                
+                villageStats[village].total++;
+                if (request.STATUS === 'รอดำเนินการ') villageStats[village].pending++;
+                else if (request.STATUS === 'อนุมัติแล้วรอช่าง') villageStats[village].approved++;
+                else if (request.STATUS === 'ไม่อนุมัติโดยผู้บริหาร') villageStats[village].rejected++;
+            });
+            
+            const villageCount = Object.keys(villageStats).length;
+            document.getElementById('villageCount').textContent = villageCount;
+            
+            // เก็บข้อมูลไว้ใช้ในหน้าวิเคราะห์หมู่บ้าน
+            window.villageStats = villageStats;
+        }
+
+        // แสดงคำขอล่าสุด
+        function renderRecentRequests() {
+            const container = document.getElementById('recentRequests');
+            if (!container) return;
+            
+            const recentRequests = allRequests
+                .sort((a, b) => {
+                    const dateA = parseDateFromThai(a.DATE_REPORTED);
+                    const dateB = parseDateFromThai(b.DATE_REPORTED);
+                    return dateB - dateA;
+                })
+                .slice(0, 5);
+            
+            if (recentRequests.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">💡</div>
+                        <p>ไม่มีรายการคำขอ</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = recentRequests.map(request => {
+                const isOverdue = checkIfOverdue(request);
+                const timeAgo = getTimeAgo(request.DATE_REPORTED);
+                
+                return `
+                    <div class="request-card" onclick='showRequestDetail("${request.REQUEST_ID}")'>
+                        <div class="request-header">
+                            <span class="request-id">🎫 ${request.REQUEST_ID}</span>
+                            <span class="status-badge ${isOverdue ? 'status-overdue' : getStatusClass(request.STATUS)}">
+                                ${isOverdue ? 'ค้างนาน' : (request.STATUS || 'รอดำเนินการ')}
+                            </span>
+                        </div>
+                        <div class="request-info">
+                            <span class="request-info-icon">👤</span>
+                            <span style="color: #f8fafc;">${request.TITLE_PREFIX || ''} ${request.FIRST_NAME || ''} ${request.LAST_NAME || ''}</span>
+                        </div>
+                        <div class="request-info">
+                            <span class="request-info-icon">📍</span>
+                            <span>บ้านเลขที่ ${request.HOUSE_NO || '-'}, หมู่ ${request.MOO || '-'}</span>
+                        </div>
+                        <div class="request-info">
+                            <span class="request-info-icon">⏰</span>
+                            <span>${timeAgo}</span>
+                        </div>
+                        <p class="request-reason">
+                            <strong style="color: #fbbf24;">ปัญหา:</strong> ${request.REASON || 'ไม่ระบุ'}
+                        </p>
+                        <p style="color: #10b981; font-size: 0.9rem; font-weight: 500; margin-top: 1rem; text-align: right;">
+                            ดูรายละเอียด →
+                        </p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ตรวจสอบว่าคำขอค้างนานหรือไม่
+        function checkIfOverdue(request) {
+            if (request.STATUS !== 'รอดำเนินการ') return false;
+            try {
+                const requestDate = parseDateFromThai(request.DATE_REPORTED);
+                const hoursDiff = (new Date() - requestDate) / (1000 * 60 * 60);
+                return hoursDiff > 24;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        // คำนวณเวลาที่ผ่านมา
+        function getTimeAgo(dateString) {
+            try {
+                const requestDate = parseDateFromThai(dateString);
+                const now = new Date();
+                const diffMs = now - requestDate;
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffDays = Math.floor(diffHours / 24);
+                
+                if (diffDays > 0) {
+                    return `${diffDays} วันที่แล้ว`;
+                } else if (diffHours > 0) {
+                    return `${diffHours} ชั่วโมงที่แล้ว`;
+                } else {
+                    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+                    return `${Math.max(1, diffMinutes)} นาทีที่แล้ว`;
+                }
+            } catch (error) {
+                return 'ไม่ทราบ';
+            }
+        }
+
+        // แสดงรายละเอียดคำขอ
+        function showRequestDetail(requestId) {
+            const request = allRequests.find(r => r.REQUEST_ID === requestId);
+            if (!request) {
+                showToast('ไม่พบข้อมูลคำขอ', 'error');
+                return;
+            }
+            
+            const isOverdue = checkIfOverdue(request);
+            const timeAgo = getTimeAgo(request.DATE_REPORTED);
+            const isPending = request.STATUS === 'รอดำเนินการ';
+            
+            // เตรียมปุ่มสำหรับการอนุมัติ/ไม่อนุมัติ
+            let actionButtons = '';
+            if (isPending && currentUser && (currentUser.role === 'executive' || currentUser.role === 'admin')) {
+                actionButtons = `
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem; justify-content: center;">
+                        <button onclick="approveRequest('${requestId}')" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 0.5rem; padding: 0.75rem 1.5rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;">
+                            ✅ อนุมัติคำขอ
+                        </button>
+                        <button onclick="rejectRequest('${requestId}')" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; border-radius: 0.5rem; padding: 0.75rem 1.5rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;">
+                            ❌ ไม่อนุมัติ
+                        </button>
+                    </div>
+                `;
+            }
+            
+            // เปิดหน้าต่างแสดงรายละเอียด
+            Swal.fire({
+                title: `🎫 ${request.REQUEST_ID}`,
+                html: `
+                    <div style="text-align: left; color: #f8fafc; line-height: 1.6;">
+                        <div style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05)); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; border: 1px solid rgba(251, 191, 36, 0.2);">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <span style="font-size: 1rem;">📊</span>
+                                <strong style="color: #fbbf24;">สถานะ:</strong>
+                                <span class="status-badge ${isOverdue ? 'status-overdue' : getStatusClass(request.STATUS)}" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 50px;">
+                                    ${isOverdue ? 'ค้างนาน' : (request.STATUS || 'รอดำเนินการ')}
+                                </span>
+                            </div>
+                            <div style="color: #e2e8f0; font-size: 0.9rem;">⏰ ${timeAgo}</div>
+                        </div>
+                        
+                        <div style="display: grid; gap: 0.75rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="color: #fbbf24;">👤</span>
+                                <strong style="color: #cbd5e1;">ผู้แจ้ง:</strong> 
+                                <span style="color: #f8fafc;">${request.TITLE_PREFIX || ''} ${request.FIRST_NAME || ''} ${request.LAST_NAME || ''}</span>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="color: #fbbf24;">📞</span>
+                                <strong style="color: #cbd5e1;">โทรศัพท์:</strong> 
+                                <span style="color: #f8fafc;">${request.PHONE || '-'}</span>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="color: #fbbf24;">📍</span>
+                                <strong style="color: #cbd5e1;">ที่อยู่:</strong> 
+                                <span style="color: #f8fafc;">บ้านเลขที่ ${request.HOUSE_NO || '-'}, หมู่ ${request.MOO || '-'}</span>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="color: #fbbf24;">⚡</span>
+                                <strong style="color: #cbd5e1;">รหัสเสา:</strong> 
+                                <span style="color: #f8fafc;">${request.POLE_ID || 'ไม่ระบุ'}</span>
+                            </div>
+                            
+                            <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                                <span style="color: #fbbf24;">🔧</span>
+                                <strong style="color: #cbd5e1;">ปัญหา:</strong> 
+                                <span style="color: #f8fafc; flex: 1;">${request.REASON || 'ไม่ระบุ'}</span>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="color: #fbbf24;">📅</span>
+                                <strong style="color: #cbd5e1;">วันที่แจ้ง:</strong> 
+                                <span style="color: #f8fafc;">${formatDateThai(request.DATE_REPORTED)}</span>
+                            </div>
+                            
+                            ${request.APPROVED_BY ? `
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="color: #10b981;">👑</span>
+                                    <strong style="color: #cbd5e1;">ผู้อนุมัติ:</strong> 
+                                    <span style="color: #10b981;">${request.APPROVED_BY}</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${request.APPROVAL_TIMESTAMP ? `
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="color: #10b981;">⏰</span>
+                                    <strong style="color: #cbd5e1;">วันที่อนุมัติ:</strong> 
+                                    <span style="color: #10b981;">${formatDateThai(request.APPROVAL_TIMESTAMP)}</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${request.TECHNICIAN_NOTES ? `
+                                <div style="background: rgba(15, 23, 42, 0.3); padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #fbbf24; margin-top: 0.5rem;">
+                                    <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                                        <span style="color: #fbbf24;">📝</span>
+                                        <div>
+                                            <strong style="color: #cbd5e1;">หมายเหตุ:</strong>
+                                            <div style="color: #f8fafc; margin-top: 0.25rem;">${request.TECHNICIAN_NOTES}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        ${actionButtons}
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'ปิด',
+                showCloseButton: true,
+                width: '95%',
+                maxWidth: '500px',
+                customClass: {
+                    popup: 'request-detail-popup'
+                }
+            });
+        }
+
+        // ฟังก์ชันอนุมัติคำขอ
+        async function approveRequest(requestId) {
+            try {
+                showSignatureModal(requestId, 'approve');
+            } catch (error) {
+                console.error('Error showing approval modal:', error);
+                showToast('เกิดข้อผิดพลาดในการแสดงหน้าต่างอนุมัติ', 'error');
+            }
+        }
+
+        // ฟังก์ชันไม่อนุมัติคำขอ
+        async function rejectRequest(requestId) {
+            try {
+                const { value: reason } = await Swal.fire({
+                    title: '❌ ไม่อนุมัติคำขอ',
+                    html: `
+                        <div style="text-align: left; color: #f8fafc; margin-bottom: 1rem;">
+                            <p style="margin-bottom: 1rem;">กรุณาระบุเหตุผลในการไม่อนุมัติคำขอ <strong>${requestId}</strong></p>
+                        </div>
+                    `,
+                    input: 'textarea',
+                    inputPlaceholder: 'เช่น: ข้อมูลไม่ครบถ้วน, ไม่อยู่ในขอบเขตรับผิดชอบ, ฯลฯ',
+                    inputAttributes: {
+                        style: 'background: rgba(15, 23, 42, 0.7); color: #f8fafc; border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 0.5rem; padding: 0.75rem; min-height: 100px;'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: '🚫 ยืนยันไม่อนุมัติ',
+                    cancelButtonText: '↩️ ยกเลิก',
+                    reverseButtons: true,
+                    inputValidator: (value) => {
+                        if (!value || value.trim().length < 10) {
+                            return 'กรุณาระบุเหตุผลอย่างน้อย 10 ตัวอักษร';
+                        }
+                    },
+                    customClass: {
+                        popup: 'signature-modal'
+                    }
+                });
+
+                if (reason) {
+                    // แสดง loading
+                    Swal.fire({
+                        title: 'กำลังบันทึก...',
+                        html: 'กรุณารอสักครู่',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    const success = await updateRequestStatus(requestId, 'ไม่อนุมัติโดยผู้บริหาร', reason.trim());
+                    
+                    if (success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'ไม่อนุมัติสำเร็จ!',
+                            text: `คำขอ ${requestId} ได้รับการไม่อนุมัติแล้ว`,
+                            confirmButtonText: 'ตกลง'
+                        });
+                        
+                        // รีเฟรชข้อมูล
+                        await loadAllData();
+                        updateAllDisplays();
+                    } else {
+                        throw new Error('ไม่สามารถบันทึกการไม่อนุมัติได้');
+                    }
+                }
+            } catch (error) {
+                console.error('Error rejecting request:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถไม่อนุมัติคำขอได้: ' + error.message,
+                    confirmButtonText: 'ตกลง'
+                });
+            }
+        }
+
+        // แสดง modal สำหรับวาดลายเซ็น
+        function showSignatureModal(requestId, action) {
+            const actionText = action === 'approve' ? 'อนุมัติ' : 'ไม่อนุมัติ';
+            const actionIcon = action === 'approve' ? '✅' : '❌';
+            
+            Swal.fire({
+                title: `${actionIcon} ${actionText}คำขอ`,
+                html: `
+                    <div class="signature-container">
+                        <div class="signature-header">
+                            <div class="signature-title">กรุณาวาดลายเซ็นเพื่อยืนยัน</div>
+                            <div class="signature-subtitle">คำขอเลขที่: ${requestId}</div>
+                        </div>
+                        
+                        <div class="signature-canvas-container">
+                            <canvas id="signatureCanvas" class="signature-canvas" width="400" height="200"></canvas>
+                            <div id="signaturePlaceholder" class="signature-placeholder">
+                                ✍️ กรุณาเซ็นชื่อในกรอบนี้
+                            </div>
+                        </div>
+                        
+                        <div class="signature-controls">
+                            <button type="button" class="signature-clear-btn" onclick="clearSignature()">
+                                🗑️ ล้างลายเซ็น
+                            </button>
+                            <div class="signature-actions">
+                                <button type="button" class="signature-cancel-btn" onclick="Swal.close()">
+                                    ยกเลิก
+                                </button>
+                                <button type="button" id="signatureSubmitBtn" class="signature-submit-btn" onclick="submitSignature('${requestId}', '${action}')" disabled>
+                                    ${actionIcon} ยืนยัน${actionText}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCancelButton: false,
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'signature-modal'
+                },
+                didOpen: () => {
+                    initializeSignaturePad();
+                }
+            });
+        }
+
+        // เริ่มต้น signature pad
+        function initializeSignaturePad() {
+            const canvas = document.getElementById('signatureCanvas');
+            const placeholder = document.getElementById('signaturePlaceholder');
+            const submitBtn = document.getElementById('signatureSubmitBtn');
+            
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            let drawing = false;
+            let hasSignature = false;
+            
+            // ตั้งค่า canvas
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Touch events
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+            
+            function startDrawing(e) {
+                drawing = true;
+                isDrawing = true;
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                
+                // ซ่อน placeholder
+                placeholder.style.display = 'none';
+                canvas.classList.add('drawing');
+            }
+            
+            function draw(e) {
+                if (!drawing) return;
+                e.preventDefault();
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                
+                hasSignature = true;
+                submitBtn.disabled = false;
+            }
+            
+            function stopDrawing() {
+                drawing = false;
+                isDrawing = false;
+                canvas.classList.remove('drawing');
+            }
+            
+            function handleTouch(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
+                                                 e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }
+            
+            // เก็บ reference
+            signaturePad = {
+                canvas: canvas,
+                ctx: ctx,
+                placeholder: placeholder,
+                hasSignature: () => hasSignature,
+                clear: () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    hasSignature = false;
+                    submitBtn.disabled = true;
+                    placeholder.style.display = 'block';
+                },
+                getDataURL: () => canvas.toDataURL('image/png')
+            };
+        }
+
+        // ล้างลายเซ็น
+        function clearSignature() {
+            if (signaturePad) {
+                signaturePad.clear();
+            }
+        }
+
+        // ส่งลายเซ็นและอนุมัติ
+        async function submitSignature(requestId, action) {
+            try {
+                if (!signaturePad || !signaturePad.hasSignature()) {
+                    showToast('กรุณาวาดลายเซ็นก่อนยืนยัน', 'warning');
+                    return;
+                }
+
+                // แสดง loading
+                Swal.fire({
+                    title: 'กำลังบันทึก...',
+                    html: 'กรุณารอสักครู่',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // อัปโหลดลายเซ็น
+                const signatureDataURL = signaturePad.getDataURL();
+                const signatureUrl = await uploadSignature(signatureDataURL, requestId);
+                
+                if (!signatureUrl) {
+                    throw new Error('ไม่สามารถอัปโหลดลายเซ็นได้');
+                }
+
+                // อัปเดตสถานะคำขอ
+                const newStatus = action === 'approve' ? 'อนุมัติแล้วรอช่าง' : 'ไม่อนุมัติโดยผู้บริหาร';
+                const success = await updateRequestStatusWithSignature(requestId, newStatus, '', signatureUrl);
+                
+                if (success) {
+                    const actionText = action === 'approve' ? 'อนุมัติ' : 'ไม่อนุมัติ';
+                    Swal.fire({
+                        icon: 'success',
+                        title: `${actionText}สำเร็จ!`,
+                        text: `คำขอ ${requestId} ได้รับการ${actionText}แล้ว`,
+                        confirmButtonText: 'ตกลง'
+                    });
+                    
+                    // รีเฟรชข้อมูล
+                    await loadAllData();
+                    updateAllDisplays();
+                } else {
+                    throw new Error('ไม่สามารถบันทึกการอนุมัติได้');
+                }
+                
+            } catch (error) {
+                console.error('Error submitting signature:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถบันทึกลายเซ็นได้: ' + error.message,
+                    confirmButtonText: 'ตกลง'
+                });
+            }
+        }
+
+        // อัปโหลดลายเซ็นไป Google Drive
+        async function uploadSignature(signatureDataURL, requestId) {
+            try {
+                const response = await window.AuthUtils.apiCall('/api/admin/upload-signature', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        imageDataUrl: signatureDataURL,
+                        fileNamePrefix: `approval_${requestId}`
+                    })
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    console.log('✅ Signature uploaded successfully:', data.signatureUrl);
+                    return data.signatureUrl;
+                } else {
+                    throw new Error(data.message || 'Failed to upload signature');
+                }
+            } catch (error) {
+                console.error('❌ Error uploading signature:', error);
+                throw error;
+            }
+        }
+
+        // อัปเดตสถานะคำขอพร้อมลายเซ็น
+        async function updateRequestStatusWithSignature(requestId, newStatus, notes, signatureUrl) {
+            try {
+                const response = await window.AuthUtils.apiCall(`/api/admin/repair-request/${requestId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        newStatus: newStatus,
+                        technicianNotes: notes || '',
+                        signatureUrl: signatureUrl,
+                        approvalTimestampClient: new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })
+                    })
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    console.log('✅ Request status updated successfully');
+                    return true;
+                } else {
+                    throw new Error(data.message || 'Failed to update request status');
+                }
+            } catch (error) {
+                console.error('❌ Error updating request status:', error);
+                throw error;
+            }
+        }
+
+        // อัปเดตสถานะคำขอ (สำหรับการไม่อนุมัติ)
+        async function updateRequestStatus(requestId, newStatus, notes) {
+            try {
+                const response = await window.AuthUtils.apiCall(`/api/admin/repair-request/${requestId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        newStatus: newStatus,
+                        technicianNotes: notes || '',
+                        approvalTimestampClient: new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })
+                    })
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    console.log('✅ Request status updated successfully');
+                    return true;
+                } else {
+                    throw new Error(data.message || 'Failed to update request status');
+                }
+            } catch (error) {
+                console.error('❌ Error updating request status:', error);
+                throw error;
+            }
+        }
+
+        // จัดรูปแบบวันที่
+        function formatDateThai(dateString) {
+            try {
+                if (!dateString) return '-';
+                const date = parseDateFromThai(dateString);
+                return date.toLocaleDateString('th-TH', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (error) {
+                return dateString;
+            }
+        }
+
+        // ฟังก์ชันการนำทาง
+        function setActivePage(pageId, title) {
+            document.getElementById('pageTitle').textContent = title;
+            PAGES.forEach(page => {
+                const pageElement = document.getElementById(page + 'Page');
+                if (pageElement) pageElement.classList.add('hidden');
+            });
+            const activePageElement = document.getElementById(pageId + 'Page');
+            if (activePageElement) activePageElement.classList.remove('hidden');
+
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach((item, index) => {
+                item.classList.remove('active');
+                if ((pageId === 'dashboard' && index === 0) ||
+                    (pageId === 'requests' && index === 1) ||
+                    (pageId === 'villageAnalysis' && index === 2) ||
+                    (pageId === 'reports' && index === 3) ||
+                    (pageId === 'profile' && index === 4)) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        function showDashboard() {
+            setActivePage('dashboard', 'ระบบผู้บริหาร');
+        }
+
+        function showRequestsPage() {
+            setActivePage('requests', 'รายการคำขอ');
+            renderAllRequests();
+        }
+
+        function showVillageAnalysis() {
+            setActivePage('villageAnalysis', 'วิเคราะห์พื้นที่');
+            renderVillageAnalysis();
+            createVillageChart();
+        }
+
+        function showProfilePage() {
+            setActivePage('profile', 'ข้อมูลส่วนตัว');
+            populateProfilePage();
+        }
+
+        // ฟังก์ชันแสดงคำขอตามประเภท
+        function showAllRequests() {
+            showRequestsPage();
+            document.getElementById('statusFilter').value = 'all';
+            filterRequests();
+        }
+
+        function showPendingRequests() {
+            showRequestsPage();
+            document.getElementById('statusFilter').value = 'รอดำเนินการ';
+            filterRequests();
+        }
+
+        function showApprovedRequests() {
+            showRequestsPage();
+            document.getElementById('statusFilter').value = 'อนุมัติแล้วรอช่าง';
+            filterRequests();
+        }
+
+        function showRejectedRequests() {
+            showRequestsPage();
+            document.getElementById('statusFilter').value = 'ไม่อนุมัติโดยผู้บริหาร';
+            filterRequests();
+        }
+
+        function showOverdueRequests() {
+            showRequestsPage();
+            // แสดงเฉพาะคำขอค้างนาน
+            const overdueRequests = allRequests.filter(checkIfOverdue);
+            renderFilteredRequests(overdueRequests);
+        }
+
+        // แสดงรายการคำขอทั้งหมด
+        function renderAllRequests() {
+            filterRequests();
+        }
+
+        // กรองคำขอตามสถานะ
+        function filterRequests() {
+            const status = document.getElementById('statusFilter').value;
+            let filteredRequests = allRequests;
+            
+            if (status !== 'all') {
+                filteredRequests = allRequests.filter(r => r.STATUS === status);
+            }
+            
+            renderFilteredRequests(filteredRequests);
+        }
+
+        // แสดงคำขอที่กรองแล้ว
+        function renderFilteredRequests(requests) {
+            const container = document.getElementById('requestsList');
+            if (!container) return;
+            
+            if (requests.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">✅</div>
+                        <p>ไม่มีรายการที่ตรงกับเงื่อนไข</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const sortedRequests = requests.sort((a, b) => {
+                const dateA = parseDateFromThai(a.DATE_REPORTED);
+                const dateB = parseDateFromThai(b.DATE_REPORTED);
+                return dateB - dateA;
+            });
+            
+            container.innerHTML = sortedRequests.map(request => {
+                const isOverdue = checkIfOverdue(request);
+                const timeAgo = getTimeAgo(request.DATE_REPORTED);
+                
+                return `
+                    <div class="request-card" onclick='showRequestDetail("${request.REQUEST_ID}")'>
+                        <div class="request-header">
+                            <span class="request-id">🎫 ${request.REQUEST_ID}</span>
+                            <span class="status-badge ${isOverdue ? 'status-overdue' : getStatusClass(request.STATUS)}">
+                                ${isOverdue ? 'ค้างนาน' : (request.STATUS || 'รอดำเนินการ')}
+                            </span>
+                        </div>
+                        
+                        <div class="request-info">
+                            <span class="request-info-icon">👤</span>
+                            <span>${request.TITLE_PREFIX || ''} ${request.FIRST_NAME || ''} ${request.LAST_NAME || ''}</span>
+                        </div>
+                        
+                        <div class="request-info">
+                            <span class="request-info-icon">📞</span>
+                            <span>${request.PHONE || '-'}</span>
+                        </div>
+                        
+                        <div class="request-info">
+                            <span class="request-info-icon">📍</span>
+                            <span>บ้านเลขที่ ${request.HOUSE_NO || '-'}, หมู่ ${request.MOO || '-'}</span>
+                        </div>
+                        
+                        <div class="request-info">
+                            <span class="request-info-icon">⏰</span>
+                            <span>${timeAgo}</span>
+                        </div>
+                        
+                        ${request.APPROVED_BY ? `
+                            <div class="request-info">
+                                <span class="request-info-icon">👑</span>
+                                <span>อนุมัติโดย ${request.APPROVED_BY}</span>
+                            </div>
+                        ` : ''}
+                        
+                        <p class="request-reason">
+                            <strong>ปัญหา:</strong> ${request.REASON || 'ไม่ระบุ'}
+                        </p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // แสดงการวิเคราะห์หมู่บ้าน
+        function renderVillageAnalysis() {
+            if (!window.villageStats) {
+                calculateVillageStatistics();
+            }
+            
+            const sortedVillages = Object.entries(window.villageStats)
+                .sort((a, b) => b[1].total - a[1].total)
+                .slice(0, 15); // แสดงแค่ 15 หมู่บ้านแรก
+            
+            const container = document.getElementById('villageStatsList');
+            container.innerHTML = sortedVillages.map(([village, stats]) => `
+                <div class="village-item">
+                    <div>
+                        <div class="village-name">หมู่ ${village}</div>
+                        <div class="village-stats">
+                            รอ: ${stats.pending} | อนุมัติ: ${stats.approved} | ปฏิเสธ: ${stats.rejected}
+                        </div>
+                    </div>
+                    <div class="village-count">${stats.total}</div>
+                </div>
+            `).join('');
+        }
+
+        // สร้างกราฟแสดงการกระจายตัวของหมู่บ้าน
+        function createVillageChart() {
+            const ctx = document.getElementById('villageDistributionChart');
+            if (!ctx || !window.villageStats) return;
+            
+            const sortedVillages = Object.entries(window.villageStats)
+                .sort((a, b) => b[1].total - a[1].total)
+                .slice(0, 10);
+            
+            if (villageChart) {
+                villageChart.destroy();
+            }
+            
+            villageChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: sortedVillages.map(([village]) => `หมู่ ${village}`),
+                    datasets: [{
+                        data: sortedVillages.map(([, stats]) => stats.total),
+                        backgroundColor: [
+                            '#fbbf24', '#f59e0b', '#d97706', '#92400e',
+                            '#10b981', '#059669', '#047857', '#065f46',
+                            '#3b82f6', '#2563eb'
+                        ],
+                        borderColor: '#1e293b',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#f8fafc',
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // สร้างรายงาน PDF
+        async function generateReport() {
+            try {
+                // แสดง loading
+                Swal.fire({
+                    title: 'กำลังสร้างรายงาน...',
+                    html: `
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; color: #e2e8f0;">
+                            <div style="font-size: 2rem;">📄</div>
+                            <div>กรุณารอสักครู่</div>
+                        </div>
+                    `,
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // คำนวณช่วงวันที่ของเดือนปัจจุบัน
+                const now = new Date();
+                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                
+                // สร้าง request body
+                const requestBody = {
+                    filterStatus: '', // ทุกสถานะ
+                    dateRange: {
+                        start: startOfMonth.toISOString(),
+                        end: endOfMonth.toISOString()
+                    },
+                    templateOptions: {
+                        title: `รายงานสรุปคำขอแจ้งซ่อมประจำเดือน ${now.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' })}`,
+                        showDate: true,
+                        headerColor: '#fbbf24',
+                        includeStats: true,
+                        includeCharts: false
+                    }
+                };
+
+                console.log('📤 ส่งคำขอสร้างรายงาน:', requestBody);
+
+                const response = await window.AuthUtils.apiCall('/api/admin/reports/repair-requests/pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    
+                    // ตรวจสอบว่าได้ PDF จริงๆ
+                    if (blob.type === 'application/pdf' || blob.size > 0) {
+                        // สร้างลิงก์ดาวน์โหลด
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        
+                        const fileName = `รายงานผู้บริหาร_${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}.pdf`;
+                        a.download = fileName;
+                        
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สร้างรายงานสำเร็จ!',
+                            text: `ไฟล์ ${fileName} ได้ถูกดาวน์โหลดแล้ว`,
+                            confirmButtonText: 'ตกลง'
+                        });
+                    } else {
+                        throw new Error('ไฟล์ที่ได้รับไม่ใช่ PDF หรือไฟล์เสียหาย');
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => null);
+                    const errorMessage = errorData?.message || `HTTP ${response.status}: ${response.statusText}`;
+                    throw new Error(errorMessage);
+                }
+            } catch (error) {
+                console.error('❌ Error generating report:', error);
+                
+                let errorMessage = 'เกิดข้อผิดพลาดในการสร้างรายงาน';
+                if (error.message.includes('PDF service ไม่พร้อมใช้งาน')) {
+                    errorMessage = 'ระบบสร้าง PDF ยังไม่พร้อมใช้งาน กรุณาติดต่อผู้ดูแลระบบ';
+                } else if (error.message.includes('puppeteer')) {
+                    errorMessage = 'ระบบสร้าง PDF ต้องการการติดตั้งเพิ่มเติม กรุณาติดต่อผู้ดูแลระบบ';
+                } else if (error.message) {
+                    errorMessage += ': ' + error.message;
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่สามารถสร้างรายงานได้',
+                    html: `
+                        <div style="color: #e2e8f0; text-align: left;">
+                            <p><strong>สาเหตุ:</strong> ${errorMessage}</p>
+                            <hr style="margin: 1rem 0; border-color: rgba(251, 191, 36, 0.3);">
+                            <p><strong>ทางเลือกอื่น:</strong></p>
+                            <ul style="margin-top: 0.5rem;">
+                                <li>ใช้ฟังก์ชัน Print ของเบราว์เซอร์</li>
+                                <li>ส่งออกข้อมูลเป็น Excel</li>
+                                <li>ติดต่อผู้ดูแลระบบ</li>
+                            </ul>
+                        </div>
+                    `,
+                    confirmButtonText: 'เข้าใจแล้ว',
+                    footer: `
+                        <div style="color: #94a3b8; font-size: 0.8rem;">
+                            หากปัญหายังคงอยู่ กรุณาติดต่อผู้ดูแลระบบ
+                        </div>
+                    `
+                });
+            }
+        }
+
+        // แสดงข้อมูลโปรไฟล์
+        function populateProfilePage() {
+            if (!currentUser) return;
+
+            document.getElementById('profilePageAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+            document.getElementById('profilePageUsername').textContent = currentUser.username;
+            document.getElementById('profilePageRole').textContent = getRoleDisplayName(currentUser.role);
+            document.getElementById('profilePageFullName').textContent = currentUser.fullName || '-';
+            document.getElementById('profilePageEmail').textContent = currentUser.email || '-';
+            document.getElementById('profilePageLastLogin').textContent = currentUser.lastLogin ? formatDateThai(currentUser.lastLogin) : 'ยังไม่เคยเข้าใช้';
+            document.getElementById('profilePageStatus').textContent = currentUser.isActive ? 'เปิดใช้งาน' : 'ปิดใช้งาน';
+        }
+
+        // ออกจากระบบ
+        function handleLogout() {
+            Swal.fire({
+                title: 'ยืนยันการออกจากระบบ',
+                text: 'คุณต้องการออกจากระบบใช่หรือไม่?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '✅ ออกจากระบบ',
+                cancelButtonText: '❌ ยกเลิก',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (window.AuthUtils && typeof window.AuthUtils.logout === 'function') {
+                        window.AuthUtils.logout();
+                    } else {
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('authUser');
+                        window.location.href = '/admin/login';
+                    }
+                }
+            });
+        }
+
+        // ฟังก์ชันช่วยเหลือ
+        function getRoleDisplayName(role) {
+            const roles = {
+                'admin': 'ผู้ดูแลระบบ',
+                'executive': 'ผู้บริหาร',
+                'technician': 'ช่างเทคนิค'
+            };
+            return roles[role] || role;
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'รอดำเนินการ': return 'status-pending';
+                case 'อนุมัติแล้วรอช่าง': return 'status-approved';
+                case 'ไม่อนุมัติโดยผู้บริหาร': return 'status-rejected';
+                default: return 'status-pending';
+            }
+        }
+
+        // SweetAlert2 Toast
+        function showToast(message, type = 'info') {
+            const iconMap = {
+                success: 'success',
+                error: 'error',
+                warning: 'warning',
+                info: 'info'
+            };
+
+            Swal.fire({
+                icon: iconMap[type],
+                title: message,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: false,
+                background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95))',
+                color: '#f8fafc',
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        }
+
+        // Auto refresh data every 5 minutes
+        setInterval(async () => {
+            if (!document.hidden && window.AuthUtils && typeof window.AuthUtils.isAuthenticated === 'function' && window.AuthUtils.isAuthenticated()) {
+                console.log('🔄 กำลังอัปเดตข้อมูลอัตโนมัติ...');
+                await loadAllData();
+            }
+        }, 5 * 60 * 1000); // 5 minutes
+
+        // Refresh when page becomes visible
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && window.AuthUtils && typeof window.AuthUtils.isAuthenticated === 'function' && window.AuthUtils.isAuthenticated()) {
+                loadAllData();
+            }
+        });
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/executive-sw.js')
+                .then((registration) => {
+                    console.log('✅ Executive Service Worker registered:', registration.scope);
+                    
+                    // ตรวจสอบการอัปเดต
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                showToast('🔄 มีการอัปเดตใหม่ กรุณารีเฟรชหน้า', 'info');
+                            }
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error('❌ Service Worker registration failed:', error);
+                });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // แสดงปุ่มติดตั้งหรือ banner
+            showInstallBanner();
+        });
+
+        function showInstallBanner() {
+            const banner = document.createElement('div');
+            banner.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 15px; text-align: center; z-index: 10000; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+                    <div style="max-width: 400px; margin: 0 auto;">
+                        <p style="margin: 0 0 10px 0; font-weight: 600;">📱 ติดตั้งแอป Smart Pole Executive</p>
+                        <button onclick="installPWA()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 20px; margin: 0 5px; cursor: pointer; backdrop-filter: blur(10px);">ติดตั้ง</button>
+                        <button onclick="this.parentElement.parentElement.remove()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 20px; margin: 0 5px; cursor: pointer;">ปิด</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(banner);
+        }
+
+        window.installPWA = async function() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const result = await deferredPrompt.userChoice;
+                
+                if (result.outcome === 'accepted') {
+                    showToast('🎉 กำลังติดตั้งแอป...', 'success');
+                } else {
+                    showToast('😔 การติดตั้งถูกยกเลิก', 'warning');
+                }
+                
+                deferredPrompt = null;
+                document.querySelector('[style*="position: fixed"]')?.remove();
+            }
+        };
+
+        // ตรวจสอบว่าแอปถูกติดตั้งแล้วหรือไม่
+        window.addEventListener('appinstalled', () => {
+            showToast('🎉 ติดตั้งแอปสำเร็จแล้ว!', 'success');
+            document.querySelector('[style*="position: fixed"]')?.remove();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ติดตามสถานะการซ่อม</title>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #F59E0B;
+            --primary-dark: #D97706;
+            --primary-light: #FCD34D;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --info-color: #3B82F6;
+            --text-dark: #1F2937;
+            --text-light: #ffffff;
+            --text-muted: #6B7280;
+            --card-bg: #ffffff;
+            --body-bg: linear-gradient(135deg, #FEF3C7 0%, #FBBF24 100%);
+            --border-color: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: var(--body-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            padding: 1.5rem;
+            border-radius: 1rem 1rem 0 0;
+            color: var(--text-light);
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            background: var(--card-bg);
+            border-radius: 0 0 1rem 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 3rem 1.5rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--primary-light);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Error State */
+        .error {
+            text-align: center;
+            padding: 2rem 1.5rem;
+        }
+
+        .error-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .error-text {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-detail {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-detail {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Request List */
+        .requests-list {
+            display: none;
+            padding: 1.5rem;
+        }
+
+        .requests-list.active {
+            display: block;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #F0FDF4 0%, #D1FAE5 100%);
+            border: 2px solid var(--success-color);
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .summary-item {
+            flex: 1;
+        }
+
+        .summary-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: block;
+        }
+
+        .summary-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        .request-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .request-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .request-id {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .status-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .status-in-progress {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .status-completed {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .status-cancelled {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .request-info {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .request-info-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .request-info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .request-description {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        /* Detail View */
+        .detail-view {
+            display: none;
+            padding: 1.5rem;
+        }
+
+        .detail-view.active {
+            display: block;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .back-button:hover {
+            gap: 0.75rem;
+        }
+
+        .detail-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            width: 120px;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            color: var(--text-muted);
+            flex: 1;
+        }
+
+        .photo-container {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .photo-container img {
+            max-width: 100%;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .header {
+                border-radius: 0;
+            }
+
+            .content {
+                border-radius: 0;
+            }
+
+            .summary-card {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .detail-label {
+                width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-icon">📋</div>
+            <h1>ติดตามสถานะการซ่อม</h1>
+            <p>ประวัติการแจ้งซ่อมของคุณ</p>
+        </div>
+
+        <div class="content">
+            <!-- Loading State -->
+            <div id="loadingState" class="loading">
+                <div class="spinner"></div>
+                <p class="loading-text">กำลังโหลดข้อมูล...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error" style="display: none;">
+                <div class="error-icon">⚠️</div>
+                <p class="error-text">เกิดข้อผิดพลาด</p>
+                <p class="error-detail" id="errorMessage"></p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">📭</div>
+                <p class="empty-text">ยังไม่มีประวัติการแจ้งซ่อม</p>
+                <p class="empty-detail">เมื่อคุณแจ้งซ่อมผ่านระบบ<br>ข้อมูลจะแสดงที่นี่</p>
+            </div>
+
+            <!-- Request List View -->
+            <div id="requestsList" class="requests-list">
+                <div class="summary-card">
+                    <div class="summary-item">
+                        <span class="summary-value" id="totalCount">0</span>
+                        <span class="summary-label">ทั้งหมด</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-value" id="pendingCount">0</span>
+                        <span class="summary-label">รอดำเนินการ</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-value" id="completedCount">0</span>
+                        <span class="summary-label">เสร็จสิ้น</span>
+                    </div>
+                </div>
+
+                <div id="requestsContainer"></div>
+            </div>
+
+            <!-- Detail View -->
+            <div id="detailView" class="detail-view">
+                <div class="back-button" onclick="showListView()">
+                    <span>←</span>
+                    <span>กลับ</span>
+                </div>
+
+                <div id="detailContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userId = null;
+        let liffId = null;
+        let baseUrl = null;
+        let repairHistory = [];
+
+        // โหลด Configuration
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/liff-config');
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    liffId = result.data.liffId;
+                    baseUrl = result.data.baseUrl;
+                    console.log('✅ Config loaded');
+                    return true;
+                }
+                throw new Error('ไม่สามารถโหลด config ได้');
+            } catch (error) {
+                console.error('❌ Error loading config:', error);
+                showError('ไม่สามารถโหลดการตั้งค่าได้');
+                return false;
+            }
+        }
+
+        // Initialize LIFF
+        async function initializeLiff() {
+            try {
+                const configLoaded = await loadConfig();
+                if (!configLoaded) return;
+
+                await liff.init({ liffId: liffId });
+                
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                    return;
+                }
+
+                const profile = await liff.getProfile();
+                userId = profile.userId;
+                
+                console.log('✅ LIFF Initialized, userId:', userId);
+                
+                await loadRepairHistory();
+                
+            } catch (error) {
+                console.error('❌ LIFF initialization failed:', error);
+                showError('ไม่สามารถเชื่อมต่อกับ LINE ได้');
+            }
+        }
+
+        // โหลดประวัติการแจ้งซ่อม
+        async function loadRepairHistory() {
+            try {
+                const response = await fetch(`/api/user-repair-history?userId=${userId}`);
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    repairHistory = result.data.requests;
+                    
+                    if (repairHistory.length === 0) {
+                        showEmptyState();
+                    } else {
+                        showRequestsList();
+                    }
+                } else {
+                    throw new Error(result.message || 'ไม่สามารถโหลดข้อมูลได้');
+                }
+            } catch (error) {
+                console.error('❌ Error loading repair history:', error);
+                showError('ไม่สามารถโหลดประวัติการแจ้งซ่อมได้');
+            }
+        }
+
+        // แสดงรายการแจ้งซ่อม
+        function showRequestsList() {
+            hideAllStates();
+            
+            // คำนวณสถิติ
+            const total = repairHistory.length;
+            const pending = repairHistory.filter(r => r.STATUS === 'รอดำเนินการ').length;
+            const completed = repairHistory.filter(r => r.STATUS === 'เสร็จสิ้น').length;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('completedCount').textContent = completed;
+
+            // สร้างรายการ
+            const container = document.getElementById('requestsContainer');
+            container.innerHTML = '';
+
+            repairHistory.forEach(request => {
+                const card = createRequestCard(request);
+                container.appendChild(card);
+            });
+
+            document.getElementById('requestsList').classList.add('active');
+        }
+
+        // สร้าง Card สำหรับแต่ละรายการ
+        function createRequestCard(request) {
+            const card = document.createElement('div');
+            card.className = 'request-card';
+            card.onclick = () => showDetailView(request.REQUEST_ID);
+
+            const statusClass = getStatusClass(request.STATUS);
+
+            card.innerHTML = `
+                <div class="request-header">
+                    <div class="request-id">📝 ${request.REQUEST_ID}</div>
+                    <div class="status-badge ${statusClass}">${request.STATUS}</div>
+                </div>
+                <div class="request-info">
+                    <div class="request-info-row">
+                        <span class="info-icon">📅</span>
+                        <span>${formatDate(request.DATE_REPORTED)}</span>
+                    </div>
+                    ${request.PROBLEM_DESCRIPTION ? `
+                        <div class="request-description">
+                            <strong>ปัญหา:</strong> ${request.PROBLEM_DESCRIPTION}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            return card;
+        }
+
+        // แสดงรายละเอียด
+        async function showDetailView(requestId) {
+            hideAllStates();
+            document.getElementById('loadingState').style.display = 'block';
+
+            try {
+                const response = await fetch(`/api/repair-request-detail/${requestId}?userId=${userId}`);
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    const detail = result.data;
+                    renderDetailView(detail);
+                } else {
+                    throw new Error(result.message || 'ไม่สามารถโหลดรายละเอียดได้');
+                }
+            } catch (error) {
+                console.error('❌ Error loading detail:', error);
+                showError('ไม่สามารถโหลดรายละเอียดได้');
+            }
+        }
+
+        // แสดงหน้ารายละเอียด
+        function renderDetailView(detail) {
+            hideAllStates();
+
+            const statusClass = getStatusClass(detail.status);
+            
+            const detailHTML = `
+                <div class="detail-card">
+                    <div class="request-header">
+                        <div class="request-id">📝 ${detail.requestId}</div>
+                        <div class="status-badge ${statusClass}">${detail.status}</div>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-section-title">
+                        <span>📋</span>
+                        <span>ข้อมูลการแจ้งซ่อม</span>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">วันที่แจ้ง:</div>
+                        <div class="detail-value">${formatDate(detail.dateReported)}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">ปัญหา:</div>
+                        <div class="detail-value">${detail.problemInfo.description}</div>
+                    </div>
+                    ${detail.problemInfo.poleId ? `
+                        <div class="detail-row">
+                            <div class="detail-label">รหัสเสา:</div>
+                            <div class="detail-value">${detail.problemInfo.poleId}</div>
+                        </div>
+                    ` : ''}
+                    ${detail.problemInfo.photoBase64 ? `
+                        <div class="photo-container">
+                            <img src="${detail.problemInfo.photoBase64}" alt="รูปภาพปัญหา">
+                        </div>
+                    ` : ''}
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-section-title">
+                        <span>👤</span>
+                        <span>ข้อมูลผู้แจ้ง</span>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">ชื่อ:</div>
+                        <div class="detail-value">${detail.reporterInfo.name}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">เบอร์โทร:</div>
+                        <div class="detail-value">${detail.reporterInfo.phone}</div>
+                    </div>
+                    ${detail.reporterInfo.house ? `
+                        <div class="detail-row">
+                            <div class="detail-label">ที่อยู่:</div>
+                            <div class="detail-value">บ้านเลขที่ ${detail.reporterInfo.house} ${detail.reporterInfo.moo ? `หมู่ ${detail.reporterInfo.moo}` : ''}</div>
+                        </div>
+                    ` : ''}
+                </div>
+
+                ${detail.actionInfo.technicianNotes || detail.actionInfo.approvedBy ? `
+                    <div class="detail-card">
+                        <div class="detail-section-title">
+                            <span>🔧</span>
+                            <span>การดำเนินการ</span>
+                        </div>
+                        ${detail.actionInfo.technicianNotes ? `
+                            <div class="detail-row">
+                                <div class="detail-label">หมายเหตุ:</div>
+                                <div class="detail-value">${detail.actionInfo.technicianNotes}</div>
+                            </div>
+                        ` : ''}
+                        ${detail.actionInfo.approvedBy ? `
+                            <div class="detail-row">
+                                <div class="detail-label">ผู้อนุมัติ:</div>
+                                <div class="detail-value">${detail.actionInfo.approvedBy}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">วันที่อนุมัติ:</div>
+                                <div class="detail-value">${formatDate(detail.actionInfo.approvalTimestamp)}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : ''}
+            `;
+
+            document.getElementById('detailContent').innerHTML = detailHTML;
+            document.getElementById('detailView').classList.add('active');
+        }
+
+        // Helper Functions
+        function getStatusClass(status) {
+            const statusMap = {
+                'รอดำเนินการ': 'status-pending',
+                'กำลังดำเนินการ': 'status-in-progress',
+                'เสร็จสิ้น': 'status-completed',
+                'ยกเลิก': 'status-cancelled'
+            };
+            return statusMap[status] || 'status-pending';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = parseDateValue(dateString);
+            if (!date) return dateString;
+
+            return date.toLocaleString('th-TH', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function parseDateValue(value) {
+            if (!value) return null;
+            if (value instanceof Date && !Number.isNaN(value.getTime())) {
+                return value;
+            }
+
+            if (typeof value !== 'string') {
+                return null;
+            }
+
+            const trimmed = value.trim();
+
+            // ISO 8601 or RFC date strings
+            const isoDate = new Date(trimmed);
+            if (!Number.isNaN(isoDate.getTime())) {
+                return isoDate;
+            }
+
+            // Handle Thai locale formats e.g. 22/10/2567 14:30:00
+            const thaiMatch = trimmed.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+            if (thaiMatch) {
+                let [ , day, month, year, hour = '0', minute = '0', second = '0' ] = thaiMatch;
+                let yearNum = parseInt(year, 10);
+
+                if (yearNum < 100) {
+                    yearNum += 2000;
+                }
+
+                if (yearNum > 2400) {
+                    yearNum -= 543; // convert from Buddhist year to Gregorian
+                }
+
+                const parsed = new Date(
+                    yearNum,
+                    parseInt(month, 10) - 1,
+                    parseInt(day, 10),
+                    parseInt(hour, 10),
+                    parseInt(minute, 10),
+                    parseInt(second, 10)
+                );
+
+                if (!Number.isNaN(parsed.getTime())) {
+                    return parsed;
+                }
+            }
+
+            return null;
+        }
+
+        function showListView() {
+            showRequestsList();
+        }
+
+        function showEmptyState() {
+            hideAllStates();
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        function showError(message) {
+            hideAllStates();
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorState').style.display = 'block';
+        }
+
+        function hideAllStates() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('requestsList').classList.remove('active');
+            document.getElementById('detailView').classList.remove('active');
+        }
+
+        // เริ่มต้น
+        window.addEventListener('load', () => {
+            initializeLiff();
+        });
+    </script>
+</body>
+</html>

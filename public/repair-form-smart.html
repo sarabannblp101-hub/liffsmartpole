@@ -1,0 +1,577 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>แจ้งซ่อมไฟฟ้า</title>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #F59E0B;
+            --primary-dark: #D97706;
+            --primary-light: #FCD34D;
+            --secondary-color: #4B5563;
+            --success-color: #10B981;
+            --text-dark: #1F2937;
+            --text-light: #ffffff;
+            --text-muted: #6B7280;
+            --card-bg: #ffffff;
+            --body-bg: linear-gradient(135deg, #FEF3C7 0%, #FBBF24 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: var(--body-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            color: var(--text-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+        }
+
+        .header-icon {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 2rem 1.5rem;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--primary-light);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Error State */
+        .error {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .error-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .error-text {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-detail {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Options State (มีข้อมูลแล้ว) */
+        .options {
+            display: none;
+        }
+
+        .options.active {
+            display: block;
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, #F0FDF4 0%, #D1FAE5 100%);
+            border: 2px solid var(--success-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .welcome-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info {
+            font-size: 1rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-detail {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .option-button {
+            width: 100%;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+            background: var(--card-bg);
+            border: 2px solid var(--primary-light);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-align: left;
+        }
+
+        .option-button:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .option-button:active {
+            transform: translateY(0);
+        }
+
+        .option-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .option-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* New User Form State */
+        .new-user-form {
+            display: none;
+        }
+
+        .new-user-form.active {
+            display: block;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border: 2px solid var(--primary-light);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .info-card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card-text {
+            font-size: 1rem;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: var(--text-light);
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button-icon {
+            font-size: 1.25rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                border-radius: 0;
+                max-width: 100%;
+                min-height: 100vh;
+            }
+
+            .header {
+                padding: 1.5rem 1rem;
+            }
+
+            .header-icon {
+                font-size: 3rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .content {
+                padding: 1.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="header-icon">💡⚡</span>
+            <h1>แจ้งซ่อมไฟฟ้าสาธารณะ</h1>
+            <p>บริการแจ้งซ่อมไฟฟ้าสาธารณะ</p>
+        </div>
+
+        <div class="content">
+            <!-- Loading State -->
+            <div id="loadingState" class="loading">
+                <div class="spinner"></div>
+                <p class="loading-text">กำลังตรวจสอบข้อมูล...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error" style="display: none;">
+                <div class="error-icon">⚠️</div>
+                <p class="error-text">เกิดข้อผิดพลาด</p>
+                <p class="error-detail" id="errorMessage"></p>
+            </div>
+
+            <!-- Options State (มีข้อมูลแล้ว) -->
+            <div id="optionsState" class="options">
+                <div class="welcome-section">
+                    <div class="welcome-icon">👋</div>
+                    <p class="welcome-text">ยินดีต้อนรับ!</p>
+                    <p class="user-info" id="userName"></p>
+                    <p class="user-detail" id="userPhone"></p>
+                </div>
+
+                <button class="option-button" onclick="goToRepairForm()">
+                    <div class="option-icon">🔧</div>
+                    <div class="option-content">
+                        <div class="option-title">แจ้งซ่อมเลย</div>
+                        <div class="option-desc">เริ่มแจ้งซ่อมไฟฟ้าทันที</div>
+                    </div>
+                </button>
+
+                <button class="option-button" onclick="goToRepairStatus()">
+                    <div class="option-icon">📋</div>
+                    <div class="option-content">
+                        <div class="option-title">ติดตามสถานะ</div>
+                        <div class="option-desc">ตรวจสอบความคืบหน้าของการแจ้งซ่อม</div>
+                    </div>
+                </button>
+
+                <button class="option-button" onclick="goToPersonalForm()">
+                    <div class="option-icon">✏️</div>
+                    <div class="option-content">
+                        <div class="option-title">แก้ไขข้อมูลส่วนตัว</div>
+                        <div class="option-desc">อัพเดทชื่อ เบอร์โทร หรือที่อยู่</div>
+                    </div>
+                </button>
+            </div>
+
+            <!-- New User Form State -->
+            <div id="newUserState" class="new-user-form">
+                <div class="info-card">
+                    <div class="info-card-icon">📝</div>
+                    <p class="info-card-text">
+                        ยังไม่พบข้อมูลของคุณในระบบ<br>
+                        กรุณากรอกข้อมูลส่วนตัวก่อนแจ้งซ่อม
+                    </p>
+                </div>
+
+                <button class="action-button" onclick="goToPersonalForm()">
+                    <span class="button-icon">✍️</span>
+                    <span>กรอกข้อมูลส่วนตัว</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userId = null;
+        let userData = null;
+        let liffId = null;
+        let baseUrl = null;
+
+        // โหลด Configuration จาก API
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/liff-config');
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    liffId = result.data.liffId;
+                    baseUrl = result.data.baseUrl;
+                    
+                    console.log('✅ Config loaded:', { liffId, baseUrl });
+                    
+                    if (!liffId) {
+                        throw new Error('LIFF ID ไม่ได้ถูกตั้งค่า');
+                    }
+                    
+                    return true;
+                } else {
+                    throw new Error(result.message || 'ไม่สามารถโหลด config ได้');
+                }
+            } catch (error) {
+                console.error('❌ Error loading config:', error);
+                showError('ไม่สามารถโหลดการตั้งค่าได้<br>กรุณาลองใหม่อีกครั้ง');
+                return false;
+            }
+        }
+
+        // Initialize LIFF
+        async function initializeLiff() {
+            try {
+                // โหลด config ก่อน
+                const configLoaded = await loadConfig();
+                if (!configLoaded) return;
+
+                // Initialize LIFF ด้วย liffId ที่ได้จาก API
+                await liff.init({ liffId: liffId });
+                
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                    return;
+                }
+
+                // ดึง userId
+                const profile = await liff.getProfile();
+                userId = profile.userId;
+                
+                console.log('✅ LIFF Initialized, userId:', userId);
+                
+                // เช็คข้อมูลผู้ใช้
+                await checkUserData();
+                
+            } catch (error) {
+                console.error('❌ LIFF initialization failed:', error);
+                showError('ไม่สามารถเชื่อมต่อกับ LINE ได้<br>กรุณาลองใหม่อีกครั้ง<br><small>' + error.message + '</small>');
+            }
+        }
+
+        // เช็คว่ามีข้อมูลผู้ใช้หรือยัง
+        async function checkUserData() {
+            try {
+                const response = await fetch(`/api/check-user?userId=${userId}`);
+                const result = await response.json();
+
+                console.log('📋 User data check result:', result);
+
+                if (result.status === 'success') {
+                    if (result.hasData && result.personalData) {
+                        // มีข้อมูลแล้ว - แสดงตัวเลือก
+                        userData = result.personalData;
+                        showOptions();
+                    } else {
+                        // ยังไม่มีข้อมูล - แสดงฟอร์มกรอกข้อมูล
+                        showNewUserForm();
+                    }
+                } else {
+                    throw new Error(result.message || 'ไม่สามารถตรวจสอบข้อมูลได้');
+                }
+            } catch (error) {
+                console.error('❌ Error checking user data:', error);
+                showError('ไม่สามารถตรวจสอบข้อมูลได้<br>กรุณาลองใหม่อีกครั้ง');
+            }
+        }
+
+        // แสดงตัวเลือก (สำหรับผู้ใช้ที่มีข้อมูลแล้ว)
+        function showOptions() {
+            hideAllStates();
+            
+            // สร้างชื่อเต็ม (ชื่อ + นามสกุล) - ใช้ firstName และ lastName จาก Google Sheets
+            const fullName = [userData.firstName, userData.lastName]
+                .filter(part => part && part.trim())  // กรองค่าว่าง
+                .join(' ');  // เชื่อมด้วยช่องว่าง
+            
+            // แสดงข้อมูลผู้ใช้
+            document.getElementById('userName').textContent = fullName || 'ผู้ใช้';
+            document.getElementById('userPhone').textContent = userData.phone ? `📞 ${userData.phone}` : '📞 ไม่มีข้อมูล';
+            
+            document.getElementById('optionsState').classList.add('active');
+        }
+
+        // แสดงฟอร์มสำหรับผู้ใช้ใหม่
+        function showNewUserForm() {
+            hideAllStates();
+            document.getElementById('newUserState').classList.add('active');
+        }
+
+        // แสดงข้อผิดพลาด
+        function showError(message) {
+            hideAllStates();
+            document.getElementById('errorMessage').innerHTML = message;
+            document.getElementById('errorState').style.display = 'block';
+        }
+
+        // ซ่อนทุก state
+        function hideAllStates() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+            document.getElementById('optionsState').classList.remove('active');
+            document.getElementById('newUserState').classList.remove('active');
+        }
+
+        // ไปหน้าแจ้งซ่อม (ส่ง userId ผ่าน URL parameter)
+        function goToRepairForm() {
+            if (!userId) {
+                alert('ไม่พบข้อมูล User ID');
+                return;
+            }
+            // ส่ง userId ผ่าน URL parameter
+            window.location.href = `${baseUrl}/repair-form.html?userId=${encodeURIComponent(userId)}`;
+        }
+
+        // ไปหน้ากรอกข้อมูลส่วนตัว (ส่ง userId ผ่าน URL parameter)
+        function goToPersonalForm() {
+            if (!userId) {
+                alert('ไม่พบข้อมูล User ID');
+                return;
+            }
+            // ส่ง userId ผ่าน URL parameter
+            window.location.href = `${baseUrl}/form.html?userId=${encodeURIComponent(userId)}`;
+        }
+
+        // ไปหน้าติดตามสถานะการแจ้งซ่อม
+        function goToRepairStatus() {
+            if (!userId) {
+                alert('ไม่พบข้อมูล User ID');
+                return;
+            }
+            // ส่ง userId ผ่าน URL parameter และ LIFF ID
+            window.location.href = `${baseUrl}/repair-status.html?liffId=${liffId}`;
+        }
+
+        // เริ่มต้นเมื่อโหลดหน้า
+        window.addEventListener('load', () => {
+            initializeLiff();
+        });
+    </script>
+</body>
+</html>
